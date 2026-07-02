@@ -8,9 +8,9 @@ start /B "" "D:\mcptg\telegram-mcp\xray.exe" run -c "D:\mcptg\telegram-mcp\confi
 timeout /t 3 /nobreak >nul
 
 :: Запускаем автоответчик
-set TG_API_ID=29865278
-set TG_API_HASH=1f2c2ec9ea3ad91acbce408c0205b51e
-set TG_SESSION_STRING=1ApWapzMBu727TNMUB8wvybYhdzXOqf_Je3Ng8S1XsHW-nt_bl_sktYAdXhKiJ1v9SWbbaAmGGSuiAnc0HJ1eowilTN1ZaLaXo-uxVZRaEvndA396br9RZ0JTMP_4ANBn3-63MRBapibzqOxozlHXY8LQCBufrqVJ26sPq9HS8wmH4gHgOJ0JnzZsnYrQLK95uaFcbjYIuQxdW5EpNAYVUFNLzJI5DWrNrlY03ErIquDjQnn7GhzrVcgr2Vi10KaK2O3rrEMcywLVhOAuHEoNv8OFisCpHBOa5wogIksVVVhwxy9q0zBeGznlb6ai4icM_fU6NRFpMVU5o7Uov0FPGWGY1YU8ugo=
+set TG_API_ID=ВАШ АЙДИ
+set TG_API_HASH=ВАШ ХЭШ
+set TG_SESSION_STRING=
 
 cd /d "C:\Users\sanya\telegram-auto-reply"
 
