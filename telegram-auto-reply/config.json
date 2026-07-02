@@ -1,0 +1,32 @@
+{
+  "ai_model": "Kimi-K2.6",
+  "ai_base_url": "https://api.iamhc.cn/v1",
+  "reply_delay": 0,
+  "spam_cooldown": 15,
+  "spam_max_per_minute": 5,
+  "sleep_start_hour": 9,
+  "sleep_end_hour": 12,
+  "group_chat_id": -1001978105175,
+  "group_trigger": "дикпик:",
+  "group_require_mention": true,
+  "owner_username": "communicationairplane",
+  "owner_id": 5526867138,
+  "group_muted": false,
+  "mode": null,
+  "ai_contacts": {
+    "QEENSOP395": {"name": "Соня", "relation": "девушка", "notes": "любит мемы, иногда злится если не отвечаю"},
+    "eshkertq998": {"name": "Ваня", "relation": "друг", "notes": "из Иркутска, любит трещать про игры и машины"},
+    "iddan787": {"name": "Айдан", "relation": "знакомый", "notes": "тихий, редко пишет, ведёт бизнес"},
+    "delayjitter36": {"name": "Паша", "relation": "знакомый", "notes": "Павел Серебряников 96"},
+    "nixcortic": {"name": "Денис", "relation": "знакомый", "notes": "Глиномес, бурят. Тсундере: грубовато но заботливо"},
+    "ddnl7": {"name": "Кириллица", "relation": "питомец", "notes": "тсундере-питомец: милый но с характером"}
+  },
+  "available_models": [
+    "Kimi-K2.6",
+    "DeepSeek-V4-Flash",
+    "DeepSeek-V4-Pro",
+    "gpt-4o-mini",
+    "gpt-4o",
+    "glm-5.1"
+  ]
+}

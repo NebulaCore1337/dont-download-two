@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🤖 Telegram Auto-Reply — Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--font-body:"Inter",sans-serif;--font-display:"Instrument Serif",serif}
+body{font-family:var(--font-body);min-height:100vh;overflow-x:hidden;background:linear-gradient(180deg,#0b1a30 0%,#153052 10%,#1e4a7a 25%,#3a7cc0 45%,#6aade8 60%,#94c9f3 75%,#b8ddf8 88%,#d6edfc 100%);color:#fff}
+
+.sky-bg{position:fixed;inset:0;z-index:-10;overflow:hidden}
+.cloud-svg{position:absolute;pointer-events:none;mix-blend-mode:screen}
+.cloud-1{top:7%;animation:drift1 132s linear infinite;filter:drop-shadow(0 26px 34px rgba(35,72,112,.18))}
+.cloud-2{top:22%;animation:drift2 156s linear infinite;animation-delay:-40s}
+.cloud-3{top:45%;animation:drift3 128s linear infinite;animation-delay:-70s}
+@keyframes drift1{from{transform:translateX(-150%)}to{transform:translateX(calc(100vw + 150%))}}
+@keyframes drift2{from{transform:translateX(-130%)}to{transform:translateX(calc(100vw + 130%))}}
+@keyframes drift3{from{transform:translateX(-160%)}to{transform:translateX(calc(100vw + 160%))}}
+
+.float-orb{position:fixed;border-radius:50%;pointer-events:none;animation:fb 14s ease-in-out infinite}
+.orb1{width:220px;height:220px;background:radial-gradient(circle,rgba(106,173,232,.15),transparent 70%);top:10%;right:5%;filter:blur(50px)}
+.orb2{width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,.1),transparent 70%);top:45%;left:6%;filter:blur(40px);animation-delay:-5s}
+.orb3{width:180px;height:180px;background:radial-gradient(circle,rgba(148,201,243,.15),transparent 70%);bottom:12%;right:10%;filter:blur(45px);animation-delay:-9s}
+@keyframes fb{0%,100%{transform:translateY(0) scale(1)}33%{transform:translateY(-20px) scale(1.05)}66%{transform:translateY(10px) scale(.95)}}
+
+.glass{position:relative;background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.07) 100%);backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.28);border-radius:24px;box-shadow:0 8px 32px rgba(11,26,48,.12),0 2px 8px rgba(11,26,48,.08),inset 0 1px 0 rgba(255,255,255,.35);overflow:hidden}
+.glass::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 65% 35% at 12% 3%,rgba(255,255,255,.45) 0%,transparent 50%),radial-gradient(ellipse 45% 25% at 88% 97%,rgba(255,255,255,.08) 0%,transparent 50%);pointer-events:none;z-index:1}
+.glass::after{content:"";position:absolute;top:0;left:-150%;right:-150%;bottom:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.06) 42%,rgba(255,255,255,.14) 50%,rgba(255,255,255,.06) 58%,transparent 65%);pointer-events:none;z-index:2;animation:shineSweep 6s ease-in-out infinite}
+.glass>*{position:relative;z-index:3}
+@keyframes shineSweep{0%,100%{transform:translateX(-15%)}50%{transform:translateX(15%)}}
+
+.glass-subtle{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.03) 100%);backdrop-filter:blur(16px) saturate(150%);border-bottom:1px solid rgba(255,255,255,.12);box-shadow:0 4px 20px rgba(11,26,48,.06)}
+
+.header{padding:20px 28px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:40}
+.header h1{font-family:var(--font-display);font-size:22px;font-weight:400}
+.container{max-width:960px;margin:0 auto;padding:0 20px 40px;position:relative;z-index:10}
+
+.section-title{font-size:12px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:14px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat-card .label{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;font-weight:500;letter-spacing:.05em}
+.stat-card .value{font-family:var(--font-display);font-size:26px;margin-top:4px}
+.green{color:#86efac}.yellow{color:#fde047}.blue{color:#93c5fd}.white{color:#fff}.red{color:#fca5a5}
+
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mode-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px;border:none;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.15);border-radius:18px;color:rgba(255,255,255,.7);font-size:13px;font-weight:500;cursor:pointer;transition:all .3s;font-family:var(--font-body)}
+.mode-btn .icon{font-size:26px}
+.mode-btn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+.mode-btn.active{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.5);color:#fff;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+
+.contact-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.contact-row:last-child{border-bottom:none}
+.contact-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.contact-info{flex:1}
+.contact-name{font-weight:600;font-size:13px}
+.contact-user{color:rgba(255,255,255,.4);font-size:11px;margin-top:1px}
+.contact-tag{font-size:10px;padding:3px 8px;border-radius:16px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);white-space:nowrap}
+.contact-actions{display:flex;gap:4px}
+.contact-actions button{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:12px;transition:all .2s}
+.contact-actions button:hover{background:rgba(255,255,255,.2);color:#fff}
+
+/* SETTINGS */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:13px;font-weight:500}
+.setting-desc{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.setting-input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;font-family:var(--font-body);width:200px;outline:none;transition:border-color .2s}
+.setting-input:focus{border-color:rgba(255,255,255,.4)}
+select.setting-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+
+.btn{padding:8px 16px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--font-body)}
+.btn-primary{background:rgba(255,255,255,.2);color:#fff}
+.btn-primary:hover{background:rgba(255,255,255,.3)}
+.btn-danger{background:rgba(252,165,165,.2);color:#fca5a5}
+.btn-danger:hover{background:rgba(252,165,165,.3)}
+.btn-success{background:rgba(134,239,172,.2);color:#86efac}
+.btn-success:hover{background:rgba(134,239,172,.3)}
+
+.toggle{position:relative;width:44px;height:24px;background:rgba(255,255,255,.15);border-radius:12px;cursor:pointer;transition:background .2s;border:1px solid rgba(255,255,255,.2)}
+.toggle.on{background:rgba(134,239,172,.3);border-color:rgba(134,239,172,.5)}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(20px)}
+
+.cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cmd-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.06)}
+.cmd-item code{color:#93c5fd;font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600}
+.cmd-item span{color:rgba(255,255,255,.4);font-size:11px}
+
+.log-area{background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;max-height:200px;overflow-y:auto;font-family:"JetBrains Mono",monospace;font-size:10px;line-height:1.7}
+.log-line{color:rgba(255,255,255,.5)}
+.log-line .time{color:rgba(255,255,255,.25)}
+.log-line .msg{color:rgba(255,255,255,.7)}
+.log-line .reply{color:#86efac}
+
+.tabs{display:flex;gap:4px;margin-bottom:20px}
+.tab{padding:10px 20px;border:none;border-radius:12px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--font-body)}
+.tab:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+.tab.active{background:rgba(255,255,255,.2);color:#fff}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(134,239,172,.15);border:1px solid rgba(134,239,172,.3);backdrop-filter:blur(12px);border-radius:12px;padding:12px 20px;color:#86efac;font-size:13px;font-weight:500;opacity:0;transform:translateY(10px);transition:all .3s;z-index:100;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.a{animation:fadeInUp .5s ease-out both}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}.d6{animation-delay:.3s}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:linear-gradient(135deg,rgba(30,58,95,.95),rgba(15,30,50,.98));border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:28px;width:420px;max-width:90vw}
+.modal h3{font-family:var(--font-display);font-size:20px;margin-bottom:16px}
+.modal .form-group{margin-bottom:14px}
+.modal .form-group label{display:block;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.modal .form-group input,.modal .form-group select,.modal .form-group textarea{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;font-family:var(--font-body);outline:none}
+.modal .form-group textarea{height:60px;resize:vertical}
+.modal .form-group input:focus,.modal .form-group textarea:focus{border-color:rgba(255,255,255,.3)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+</style>
+</head>
+<body>
+
+<div class="sky-bg">
+  <svg class="cloud-svg cloud-1" width="600" height="200" viewBox="0 0 600 200"><defs><radialGradient id="c1" cx="45%" cy="30%" r="70%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#d7e9f8"/></radialGradient><filter id="f1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter></defs><g filter="url(#f1)" opacity=".8"><ellipse cx="180" cy="120" rx="120" ry="55" fill="url(#c1)"/><ellipse cx="280" cy="100" rx="140" ry="70" fill="url(#c1)"/><ellipse cx="380" cy="115" rx="110" ry="50" fill="url(#c1)"/></g></svg>
+  <svg class="cloud-svg cloud-2" width="480" height="180" viewBox="0 0 480 180"><defs><radialGradient id="c2" cx="46%" cy="28%" r="72%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#c8def1"/></radialGradient><filter id="f2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="10"/></filter></defs><g filter="url(#f2)" opacity=".6"><ellipse cx="150" cy="100" rx="100" ry="50" fill="url(#c2)"/><ellipse cx="240" cy="85" rx="120" ry="60" fill="url(#c2)"/><ellipse cx="330" cy="95" rx="90" ry="45" fill="url(#c2)"/></g></svg>
+  <svg class="cloud-svg cloud-3" width="700" height="220" viewBox="0 0 700 220"><defs><radialGradient id="c3" cx="42%" cy="32%" r="75%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#bed8ed"/></radialGradient><filter id="f3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="12"/></filter></defs><g filter="url(#f3)" opacity=".5"><ellipse cx="200" cy="130" rx="140" ry="65" fill="url(#c3)"/><ellipse cx="320" cy="110" rx="160" ry="80" fill="url(#c3)"/><ellipse cx="440" cy="125" rx="130" ry="60" fill="url(#c3)"/></g></svg>
+</div>
+<div class="float-orb orb1"></div><div class="float-orb orb2"></div><div class="float-orb orb3"></div>
+
+<header class="glass-subtle">
+  <div class="header">
+    <div><h1>🤖 Telegram Auto-Reply</h1><div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:2px">Панель управления</div></div>
+    <div style="display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#86efac;box-shadow:0 0 8px #86efac"></span><span style="font-size:12px;color:rgba(255,255,255,.5)" id="statusText">Online</span></div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs a d1">
+    <button class="tab active" onclick="showTab('main')">Главная</button>
+    <button class="tab" onclick="showTab('contacts')">Контакты</button>
+    <button class="tab" onclick="showTab('settings')">Настройки</button>
+    <button class="tab" onclick="showTab('commands')">Команды</button>
+    <button class="tab" onclick="showTab('log')">Лог</button>
+  </div>
+
+  <!-- MAIN TAB -->
+  <div class="tab-content active" id="tab-main">
+    <div class="glass a d2" style="padding:20px;margin-bottom:16px">
+      <div class="section-title">Статус</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">Режим</div><div class="value green" id="modeDisplay">—</div></div>
+        <div class="stat-card"><div class="label">Модель</div><div class="value blue" id="modelDisplay">—</div></div>
+        <div class="stat-card"><div class="label">Антиспам</div><div class="value yellow" id="spamDisplay">—</div></div>
+      </div>
+    </div>
+    <div class="a d3">
+      <div class="section-title">Режим</div>
+      <div class="mode-grid">
+        <button class="mode-btn" onclick="setMode('sleep')"><span class="icon">😴</span>Сплю</button>
+        <button class="mode-btn" onclick="setMode('busy')"><span class="icon">💼</span>Занят</button>
+        <button class="mode-btn" onclick="setMode('auto')"><span class="icon">🟢</span>Авто</button>
+      </div>
+    </div>
+    <div class="glass a d4" style="padding:20px;margin-top:16px">
+      <div class="section-title">Группа «Вайбушня Скамера 💬»</div>
+      <div class="stats-grid">
+        <div><div class="label" style="font-size:11px;color:rgba(255,255,255,.45)">Статус</div><div class="value green" style="font-size:20px" id="groupStatus">—</div></div>
+        <div><div class="label" style="font-size:11px;color:rgba(255,255,255,.45)">Триггер</div><div class="value blue" style="font-size:20px" id="triggerDisplay">—</div></div>
+        <div style="display:flex;align-items:center;gap:8px"><div class="label" style="font-size:11px;color:rgba(255,255,255,.45)">Тишина</div><div class="toggle" id="muteToggle" onclick="toggleMute()"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACTS TAB -->
+  <div class="tab-content" id="tab-contacts">
+    <div class="glass a" style="padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="section-title" style="margin:0">Контакты</div>
+        <button class="btn btn-primary" onclick="openAddContact()">+ Добавить</button>
+      </div>
+      <div id="contactsList"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="tab-content" id="tab-settings">
+    <div class="glass a" style="padding:20px;margin-bottom:16px">
+      <div class="section-title">AI Модель</div>
+      <div class="setting-row">
+        <div><div class="setting-label">Модель</div><div class="setting-desc">Текущая модель для генерации ответов</div></div>
+        <select class="setting-input" id="modelSelect" onchange="saveSetting('ai_model', this.value)"></select>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">API URL</div><div class="setting-desc">Эндпоинт AI API</div></div>
+        <input class="setting-input" id="baseUrlInput" onchange="saveSetting('ai_base_url', this.value)">
+      </div>
+    </div>
+    <div class="glass a d2" style="padding:20px;margin-bottom:16px">
+      <div class="section-title">Расписание</div>
+      <div class="setting-row">
+        <div><div class="setting-label">Начало сна</div><div class="setting-desc">Час когда включается режим «сплю»</div></div>
+        <input class="setting-input" type="number" min="0" max="23" id="sleepStartInput" onchange="saveSetting('sleep_start_hour', +this.value)" style="width:80px">
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Конец сна</div><div class="setting-desc">Час когда выключается режим «сплю»</div></div>
+        <input class="setting-input" type="number" min="0" max="23" id="sleepEndInput" onchange="saveSetting('sleep_end_hour', +this.value)" style="width:80px">
+      </div>
+    </div>
+    <div class="glass a d3" style="padding:20px;margin-bottom:16px">
+      <div class="section-title">Антиспам</div>
+      <div class="setting-row">
+        <div><div class="setting-label">Кулдаун</div><div class="setting-desc">Секунды между ответами одному пользователю</div></div>
+        <input class="setting-input" type="number" min="1" max="120" id="cooldownInput" onchange="saveSetting('spam_cooldown', +this.value)" style="width:80px">
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Лимит в минуту</div><div class="setting-desc">Макс запросов от одного пользователя</div></div>
+        <input class="setting-input" type="number" min="1" max="100" id="rateLimitInput" onchange="saveSetting('spam_max_per_minute', +this.value)" style="width:80px">
+      </div>
+    </div>
+    <div class="glass a d4" style="padding:20px">
+      <div class="section-title">Группа</div>
+      <div class="setting-row">
+        <div><div class="setting-label">Триггер</div><div class="setting-desc">Слово для ответа без @упоминания</div></div>
+        <input class="setting-input" id="triggerInput" onchange="saveSetting('group_trigger', this.value)">
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Только по @упоминанию</div><div class="setting-desc">Отвечать только при @communicationairplane</div></div>
+        <div class="toggle" id="mentionToggle" onclick="toggleMention()"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMANDS TAB -->
+  <div class="tab-content" id="tab-commands">
+    <div class="glass a" style="padding:20px">
+      <div class="section-title">Команды владельца (личка + группа)</div>
+      <div class="cmd-grid">
+        <div class="cmd-item"><code>/status</code><span>Статус бота</span></div>
+        <div class="cmd-item"><code>/sleep</code><span>Режим сна</span></div>
+        <div class="cmd-item"><code>/busy</code><span>Режим занят</span></div>
+        <div class="cmd-item"><code>/off</code><span>Авто по времени</span></div>
+        <div class="cmd-item"><code>/ping</code><span>Проверка связи</span></div>
+        <div class="cmd-item"><code>/memory</code><span>Статистика памяти</span></div>
+        <div class="cmd-item"><code>/help</code><span>Все команды</span></div>
+      </div>
+    </div>
+    <div class="glass a d2" style="padding:20px;margin-top:16px">
+      <div class="section-title">Команды группы</div>
+      <div class="cmd-grid">
+        <div class="cmd-item"><code>/mute</code><span>Выключить в группе</span></div>
+        <div class="cmd-item"><code>/unmute</code><span>Включить в группе</span></div>
+        <div class="cmd-item"><code>/muteall</code><span>Выключить везде</span></div>
+        <div class="cmd-item"><code>/trigger X</code><span>Сменить триггер</span></div>
+      </div>
+    </div>
+    <div class="glass a d3" style="padding:20px;margin-top:16px">
+      <div class="section-title">Триггеры</div>
+      <div class="cmd-grid">
+        <div class="cmd-item"><code>дикпик: вопрос</code><span>Ответ в группе (для всех)</span></div>
+        <div class="cmd-item"><code>памаги: вопрос</code><span>Помощник (Соня/Лева)</span></div>
+        <div class="cmd-item"><code>@communicationairplane</code><span>Ответ в группе</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div class="tab-content" id="tab-log">
+    <div class="glass a" style="padding:20px">
+      <div class="section-title">Лог (последние 50)</div>
+      <div class="log-area" id="logArea"><div class="log-line"><span class="time">--:--:--</span> <span class="msg">Загрузка...</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <h3 id="modalTitle">Добавить контакт</h3>
+    <div class="form-group"><label>Юзернейм</label><input id="mKey" placeholder="username"></div>
+    <div class="form-group"><label>Имя</label><input id="mName" placeholder="Имя"></div>
+    <div class="form-group"><label>Роль</label><input id="mRelation" placeholder="друг / девушка / питомец"></div>
+    <div class="form-group"><label>Заметки</label><textarea id="mNotes" placeholder="Особенности общения"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="mDeleteBtn" onclick="deleteContact()" style="display:none">Удалить</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-primary" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-success" onclick="saveContact()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let config = {};
+let editingKey = null;
+
+async function loadConfig() {
+  try {
+    const r = await fetch('/api/config');
+    config = await r.json();
+    renderAll();
+  } catch(e) { console.error(e); }
+}
+
+function renderAll() {
+  // Status
+  const modes = {sleep:'😴 СПЛЮ',busy:'💼 ЗАНЯТ',auto:'🟢 АВТО',null:'🟢 АВТО'};
+  document.getElementById('modeDisplay').textContent = modes[config.mode] || '🟢 АВТО';
+  document.getElementById('modelDisplay').textContent = config.ai_model || '—';
+  document.getElementById('spamDisplay').textContent = (config.spam_cooldown||15) + 'с · ' + (config.spam_max_per_minute||5) + '/мин';
+  document.getElementById('groupStatus').textContent = config.group_muted ? '🔴 Выкл' : '🟢 Активен';
+  document.getElementById('triggerDisplay').textContent = config.group_trigger || '—';
+
+  // Mode buttons
+  document.querySelectorAll('.mode-btn').forEach((b,i) => {
+    const m = ['sleep','busy','auto'][i];
+    b.classList.toggle('active', (config.mode||'auto') === m);
+  });
+
+  // Mute toggle
+  document.getElementById('muteToggle').classList.toggle('on', !!config.group_muted);
+  document.getElementById('mentionToggle').classList.toggle('on', !!config.group_require_mention);
+
+  // Settings
+  const sel = document.getElementById('modelSelect');
+  sel.innerHTML = (config.available_models||[]).map(m => '<option'+(m===config.ai_model?' selected':'')+'>'+m+'</option>').join('');
+  document.getElementById('baseUrlInput').value = config.ai_base_url || '';
+  document.getElementById('sleepStartInput').value = config.sleep_start_hour ?? 9;
+  document.getElementById('sleepEndInput').value = config.sleep_end_hour ?? 12;
+  document.getElementById('cooldownInput').value = config.spam_cooldown ?? 15;
+  document.getElementById('rateLimitInput').value = config.spam_max_per_minute ?? 5;
+  document.getElementById('triggerInput').value = config.group_trigger || '';
+
+  // Contacts
+  renderContacts();
+}
+
+function renderContacts() {
+  const c = config.ai_contacts || {};
+  const icons = {девушка:'💗',друг:'🎮',знакомый:'📋',питомец:'🐕'};
+  const colors = {девушка:'#f9a8d4',друг:'#86efac',питомец:'#fde047'};
+  document.getElementById('contactsList').innerHTML = Object.entries(c).map(([k,v]) => {
+    const rel = v.relation || '';
+    const icon = icons[rel] || '👤';
+    const tagColor = colors[rel] || 'rgba(255,255,255,.1)';
+    return `<div class="contact-row">
+      <div class="contact-avatar">${icon}</div>
+      <div class="contact-info"><div class="contact-name">${v.name||k}</div><div class="contact-user">@${k} · ${rel}</div></div>
+      <span class="contact-tag">${v.notes ? v.notes.substring(0,25)+'...' : rel}</span>
+      <div class="contact-actions">
+        <button onclick="editContact('${k}')" title="Редактировать">✏️</button>
+        <button onclick="quickDelete('${k}')" title="Удалить">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function api(method, path, body) {
+  const opts = {method, headers:{'Content-Type':'application/json'}};
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(path, opts);
+  return r.json();
+}
+
+async function saveSetting(key, value) {
+  await api('POST', '/api/config', {[key]: value});
+  config[key] = value;
+  toast('Сохранено');
+}
+
+async function setMode(mode) {
+  const val = mode === 'auto' ? null : mode;
+  await api('POST', '/api/mode', {mode: val});
+  config.mode = val;
+  renderAll();
+  toast('Режим: ' + (val || 'авто'));
+}
+
+async function toggleMute() {
+  const muted = !config.group_muted;
+  await api('POST', '/api/mute', {muted});
+  config.group_muted = muted;
+  renderAll();
+  toast(muted ? 'Бот выключен' : 'Бот включён');
+}
+
+async function toggleMention() {
+  const val = !config.group_require_mention;
+  await saveSetting('group_require_mention', val);
+  renderAll();
+}
+
+function openAddContact() {
+  editingKey = null;
+  document.getElementById('modalTitle').textContent = 'Добавить контакт';
+  document.getElementById('mKey').value = '';
+  document.getElementById('mName').value = '';
+  document.getElementById('mRelation').value = '';
+  document.getElementById('mNotes').value = '';
+  document.getElementById('mKey').disabled = false;
+  document.getElementById('mDeleteBtn').style.display = 'none';
+  document.getElementById('contactModal').classList.add('show');
+}
+
+function editContact(key) {
+  editingKey = key;
+  const c = config.ai_contacts[key] || {};
+  document.getElementById('modalTitle').textContent = 'Редактировать: ' + (c.name || key);
+  document.getElementById('mKey').value = key;
+  document.getElementById('mName').value = c.name || '';
+  document.getElementById('mRelation').value = c.relation || '';
+  document.getElementById('mNotes').value = c.notes || '';
+  document.getElementById('mKey').disabled = true;
+  document.getElementById('mDeleteBtn').style.display = 'inline-block';
+  document.getElementById('contactModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('contactModal').classList.remove('show'); }
+
+async function saveContact() {
+  const key = document.getElementById('mKey').value.trim();
+  if (!key) return toast('Введите юзернейм');
+  await api('POST', '/api/contact', {
+    key, name: document.getElementById('mName').value.trim(),
+    relation: document.getElementById('mRelation').value.trim(),
+    notes: document.getElementById('mNotes').value.trim(),
+  });
+  config.ai_contacts = config.ai_contacts || {};
+  config.ai_contacts[key] = {name:document.getElementById('mName').value.trim(), relation:document.getElementById('mRelation').value.trim(), notes:document.getElementById('mNotes').value.trim()};
+  renderAll();
+  closeModal();
+  toast('Контакт сохранён');
+}
+
+async function deleteContact() {
+  if (!editingKey) return;
+  await api('POST', '/api/contact', {key: editingKey, delete: true});
+  delete config.ai_contacts[editingKey];
+  renderAll();
+  closeModal();
+  toast('Контакт удалён');
+}
+
+async function quickDelete(key) {
+  if (!confirm('Удалить ' + key + '?')) return;
+  await api('POST', '/api/contact', {key, delete: true});
+  delete config.ai_contacts[key];
+  renderAll();
+  toast('Удалён');
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', t.textContent.toLowerCase().includes(name.substring(0,3))));
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelectorAll('.tabs .tab').forEach(t => {
+    const map = {main:'Главная',contacts:'Контакты',settings:'Настройки',commands:'Команды',log:'Лог'};
+    t.classList.toggle('active', t.textContent === map[name]);
+  });
+}
+
+async function refreshLog() {
+  try {
+    const r = await fetch('/api/log');
+    const data = await r.json();
+    const area = document.getElementById('logArea');
+    area.innerHTML = data.slice(-50).reverse().map(e => {
+      const src = e.chat ? '💬 ' + (e.chat||'') : '📩 ' + (e.from||'');
+      const txt = (e.text||'').substring(0,50);
+      const reply = (e.ai_reply||e.fallback_reply||'').substring(0,50);
+      return `<div class="log-line"><span class="time">${e.time||''}</span> <span class="msg">${src}: ${txt}</span>${reply?' → <span class="reply">'+reply+'</span>':''}</div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+loadConfig();
+setInterval(refreshLog, 3000);
+refreshLog();
+</script>
+</body>
+</html>
