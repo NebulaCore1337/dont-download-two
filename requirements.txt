@@ -1,0 +1,16 @@
+discord.py-self[voice]==2.0.1
+mcp
+python-dotenv
+playwright
+hcaptcha-challenger
+audioop-lts; python_version >= '3.13'
+camoufox[geoip]
+tls-client
+httpx
+pyjwt
+colorama
+numpy
+scipy
+requests
+loguru
+yt-dlp
